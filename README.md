@@ -10,7 +10,6 @@ local originalTransparency = {}
 local ghostPlatform
 local ghostConnection
 local ghostEnabled = false
-local xrayEnabled = false
 
 -- Função Ghost
 local function enableGhost()
@@ -24,7 +23,8 @@ local function enableGhost()
 	ghostPlatform.Size = Vector3.new(6, 1, 6)
 	ghostPlatform.Anchored = true
 	ghostPlatform.CanCollide = true
-	-- NÃO muda cor nem nome
+	ghostPlatform.Color = Color3.new(0,0,0) -- sempre preta
+	ghostPlatform.Material = Enum.Material.SmoothPlastic
 	ghostPlatform.Parent = workspace
 
 	if ghostConnection then ghostConnection:Disconnect() end
@@ -47,9 +47,8 @@ local function disableGhost()
 	end
 end
 
--- Função Xray
+-- Função Xray (só bases)
 local function enableXray()
-	xrayEnabled = true
 	for _, obj in pairs(workspace:GetDescendants()) do
 		if obj:IsA("BasePart") then
 			if obj.Name:lower():find("base") then
@@ -63,7 +62,6 @@ local function enableXray()
 end
 
 local function disableXray()
-	xrayEnabled = false
 	for obj, trans in pairs(originalTransparency) do
 		if obj and obj.Parent then
 			obj.LocalTransparencyModifier = 0
@@ -72,21 +70,8 @@ local function disableXray()
 	originalTransparency = {}
 end
 
--- Reaplica quando respawnar
-player.CharacterAdded:Connect(function()
-	local char = player.Character or player.CharacterAdded:Wait()
-	char:WaitForChild("HumanoidRootPart")
-
-	if ghostEnabled then
-		enableGhost()
-	end
-	if xrayEnabled then
-		enableXray()
-	end
-end)
-
 -- Criar menu
-local function createMenu(name, offsetY)
+local function createMenu(name, posY)
 	local screenGui = Instance.new("ScreenGui")
 	screenGui.Name = name .. "Gui"
 	screenGui.Parent = playerGui
@@ -94,7 +79,7 @@ local function createMenu(name, offsetY)
 
 	local mainFrame = Instance.new("Frame", screenGui)
 	mainFrame.Size = UDim2.new(0, 85, 0, 55)
-	mainFrame.Position = UDim2.new(0.5, -42, 0.5, offsetY) -- centralizado
+	mainFrame.Position = UDim2.new(0.5, -42, 0.5, posY) -- meio da tela
 	mainFrame.BackgroundColor3 = Color3.new(0,0,0)
 	mainFrame.BackgroundTransparency = 0.4
 	mainFrame.BorderSizePixel = 0
@@ -185,6 +170,14 @@ local function createMenu(name, offsetY)
 	end)
 end
 
--- Criar menus no centro
-createMenu("Ghost", -70) -- em cima
-createMenu("Xray", 0)   -- logo abaixo
+-- Criar menus no meio da tela
+createMenu("Ghost", -70) -- Ghost em cima
+createMenu("Xray", 0)   -- Xray logo abaixo
+
+-- Garantir Ghost depois de respawn
+player.CharacterAdded:Connect(function()
+	if ghostEnabled then
+		task.wait(1) -- espera carregar o HRP
+		enableGhost()
+	end
+end)
