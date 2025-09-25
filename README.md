@@ -9,8 +9,8 @@ local originalTransparency = {}
 -- Ghost plataforma
 local ghostPlatform
 local ghostConnection
-local ghostEnabled = false -- controle se Ghost tá ligado
-local xrayEnabled = false -- controle se Xray tá ligado
+local ghostEnabled = false
+local xrayEnabled = false
 
 -- Função Ghost
 local function enableGhost()
@@ -24,10 +24,7 @@ local function enableGhost()
 	ghostPlatform.Size = Vector3.new(6, 1, 6)
 	ghostPlatform.Anchored = true
 	ghostPlatform.CanCollide = true
-	ghostPlatform.Transparency = 0.5
-	ghostPlatform.Color = Color3.fromRGB(255, 255, 255)
-	ghostPlatform.Material = Enum.Material.SmoothPlastic
-	ghostPlatform.Name = "GhostPlatform"
+	-- NÃO muda cor nem nome
 	ghostPlatform.Parent = workspace
 
 	if ghostConnection then ghostConnection:Disconnect() end
@@ -50,7 +47,7 @@ local function disableGhost()
 	end
 end
 
--- Função Xray (só bases)
+-- Função Xray
 local function enableXray()
 	xrayEnabled = true
 	for _, obj in pairs(workspace:GetDescendants()) do
@@ -89,7 +86,7 @@ player.CharacterAdded:Connect(function()
 end)
 
 -- Criar menu
-local function createMenu(name, posY, centerY)
+local function createMenu(name, offsetY)
 	local screenGui = Instance.new("ScreenGui")
 	screenGui.Name = name .. "Gui"
 	screenGui.Parent = playerGui
@@ -97,9 +94,7 @@ local function createMenu(name, posY, centerY)
 
 	local mainFrame = Instance.new("Frame", screenGui)
 	mainFrame.Size = UDim2.new(0, 85, 0, 55)
-
-	-- aparece no meio da tela, com offset vertical
-	mainFrame.Position = UDim2.new(0.5, -42, 0.5, posY)
+	mainFrame.Position = UDim2.new(0.5, -42, 0.5, offsetY) -- centralizado
 	mainFrame.BackgroundColor3 = Color3.new(0,0,0)
 	mainFrame.BackgroundTransparency = 0.4
 	mainFrame.BorderSizePixel = 0
@@ -190,6 +185,6 @@ local function createMenu(name, posY, centerY)
 	end)
 end
 
--- Criar menus centralizados
-createMenu("Ghost", -70) -- Ghost em cima
-createMenu("Xray", 0)   -- Xray logo abaixo
+-- Criar menus no centro
+createMenu("Ghost", -70) -- em cima
+createMenu("Xray", 0)   -- logo abaixo
